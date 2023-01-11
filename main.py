@@ -20,3 +20,5 @@ if __name__ == '__main__':
     print(inference_job_id)
     inference_job_status, inference_job_progress = client.get_inference_job_status(inference_job_id)
     print(f"Inference job: {inference_job_id}, status: {inference_job_status}, progress: {inference_job_progress}")
+    image_urls = client.get_generated_image_urls(inference_job_id)  # returns empty array because job progress < 1.0
+    print(f"Image urls: {image_urls}")

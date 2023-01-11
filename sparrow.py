@@ -77,4 +77,6 @@ class Client:
         return data.get('status'), data.get('progress')
 
     def get_generated_image_urls(self, inference_job_id: str):
-        return ['url1', 'url2', 'url3']
+        res = self.session.get(f'{self.base_url}/generated-images/{inference_job_id}')
+        data = Client.check_response(res)
+        return data.get('image_urls', [])
