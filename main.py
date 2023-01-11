@@ -3,8 +3,8 @@ import uuid
 from sparrow import Client
 
 if __name__ == '__main__':
-    client = Client()
-    # client = Client(config=Config(api_key='my-api-key'))
+    client = Client()  # uses environment variable for config
+    # client = Client(config=Config(api_key='vicky-api-key'))
     model_reference = str(uuid.uuid4())
     finetune_job_id = client.create_finetune_job(model_reference, 'male', [
         'https://something1',
