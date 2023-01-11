@@ -12,3 +12,5 @@ if __name__ == '__main__':
         'https://something3'
     ], 5000)
     print(finetune_job_id)
+    finetune_job_status = client.get_finetune_job_status(finetune_job_id)
+    print(finetune_job_status)

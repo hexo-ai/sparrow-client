@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 
 from requests import Session
 
@@ -32,6 +32,11 @@ class Client:
             'x-api-key': self.api_key
         })
 
+    @staticmethod
+    def check_response(res):
+        if not res.ok:
+            raise RuntimeError(f'API call failed: {res.status_code}')
+
     def create_finetune_job(self, model_reference: str,
                             gender: str, image_urls: List[str], max_train_steps: int) -> str:
         payload = {
@@ -41,13 +46,15 @@ class Client:
             'max_train_steps': max_train_steps,
         }
         res = self.session.post(f'{self.base_url}/finetune-job', json=payload)
-        if not res.ok:
-            raise RuntimeError(f'API call failed: {res.status_code}')
+        Client.check_response(res)
         data = res.json()
         return data.get('finetune_job_id')
 
-    def get_finetune_job_status(self, finetune_job_id: str):
-        return 'finetune_job_status'
+    def get_finetune_job_status(self, finetune_job_id: str) -> Tuple[str, float]:
+        res = self.session.get(f'{self.base_url}/finetune-job-status/{finetune_job_id}')
+        Client.check_response(res)
+        data = res.json()
+        return data.get('status'), 0.5
 
     def create_inference_job(self, model_reference: str, prompt: str, negative_prompt: str, num_inference_steps: int,
                              guidance_scale: float):
