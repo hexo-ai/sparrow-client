@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from requests import Session
 
@@ -33,9 +33,13 @@ class Client:
         })
 
     @staticmethod
-    def check_response(res):
+    def check_response(res) -> Dict:
         if not res.ok:
             raise RuntimeError(f'API call failed: {res.status_code}')
+        data = res.json()
+        if 'error' in data:
+            raise RuntimeError(f"Error: {data['error']}")
+        return data
 
     def create_finetune_job(self, model_reference: str,
                             gender: str, image_urls: List[str], max_train_steps: int) -> str:
@@ -46,22 +50,31 @@ class Client:
             'max_train_steps': max_train_steps,
         }
         res = self.session.post(f'{self.base_url}/finetune-job', json=payload)
-        Client.check_response(res)
-        data = res.json()
+        data = Client.check_response(res)
         return data.get('finetune_job_id')
 
     def get_finetune_job_status(self, finetune_job_id: str) -> Tuple[str, float]:
         res = self.session.get(f'{self.base_url}/finetune-job-status/{finetune_job_id}')
-        Client.check_response(res)
-        data = res.json()
-        return data.get('status'), 0.5
+        data = Client.check_response(res)
+        return data.get('status'), data.get('progress')
 
     def create_inference_job(self, model_reference: str, prompt: str, negative_prompt: str, num_inference_steps: int,
                              guidance_scale: float):
-        return 'inference_job_id'
+        payload = {
+            'model_reference': model_reference,
+            'prompt': prompt,
+            'negative_prompt': negative_prompt,
+            'num_inference_steps': num_inference_steps,
+            'guidance_scale': guidance_scale,
+        }
+        res = self.session.post(f'{self.base_url}/inference-job', json=payload)
+        data = Client.check_response(res)
+        return data.get('inference_job_id')
 
     def get_inference_job_status(self, inference_job_id: str):
-        return 'inference_job_status'
+        res = self.session.get(f'{self.base_url}/inference-job-status/{inference_job_id}')
+        data = Client.check_response(res)
+        return data.get('status'), data.get('progress')
 
     def get_generated_image_urls(self, inference_job_id: str):
         return ['url1', 'url2', 'url3']
