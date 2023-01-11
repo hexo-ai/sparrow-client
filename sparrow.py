@@ -53,11 +53,6 @@ class Client:
         data = Client.check_response(res)
         return data.get('finetune_job_id')
 
-    def get_finetune_job_status(self, finetune_job_id: str) -> Tuple[str, float]:
-        res = self.session.get(f'{self.base_url}/finetune-job-status/{finetune_job_id}')
-        data = Client.check_response(res)
-        return data.get('status'), data.get('progress')
-
     def create_inference_job(self, model_reference: str, prompt: str, negative_prompt: str, num_inference_steps: int,
                              guidance_scale: float):
         payload = {
@@ -71,8 +66,8 @@ class Client:
         data = Client.check_response(res)
         return data.get('inference_job_id')
 
-    def get_inference_job_status(self, inference_job_id: str):
-        res = self.session.get(f'{self.base_url}/inference-job-status/{inference_job_id}')
+    def get_job_status(self, job_id: str):
+        res = self.session.get(f'{self.base_url}/job-status/{job_id}')
         data = Client.check_response(res)
         return data.get('status'), data.get('progress')
 
